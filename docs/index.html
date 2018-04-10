@@ -25,17 +25,247 @@
 
 <h1 align="middle">CS 184: Computer Graphics and Imaging, Spring 2018</h1>
 <h1 align="middle">Project 4: Cloth Simulator</h1>
-<h2 align="middle">YOUR NAME, CS184-???</h2>
+<h2 align="middle">Bradley Qu, CS184-afx</h2>
 
 <br><br>
 
 <div>
 
 <h2 align="middle">Overview</h2>
-<p>Give a high-level overview of what you implemented in this project. Think about what you've built as a whole. Share your thoughts on what interesting things you've learned from completing the project.</p>
+<p>
+  We created a cloth simulator using a point mass and spring model. Since such simulation is very expensive, we made 
+  tradeoffs between physical accuracy and performance. Namely, we implemented Verlet integration that approximates the
+  properties of cloth without the complex calculations behind it.
+</p>
 
-<h2 align="middle">Part I: Masses and springs</h2>
+<h2 align="middle">Part I: Masses and Springs</h2>
+<table style="width:100%">
+  <tr>
+    <td align="middle">
+      <img src="images/p1noshear.png" width="100%" />
+      <figcaption align="middle">No Shear</figcaption>
+    </td>
+    <td align="middle">
+      <img src="images/p1shear.png" width="100%" />
+      <figcaption align="middle">Shear Only</figcaption>
+    </td>
+    <td align="middle">
+      <img src="images/p1all.png" width="100%" />
+      <figcaption align="middle">All Constraints</figcaption>
+    </td>
+  </tr>
+</table>
 
+<h2 align="middle">Part II: Simulation via Numerical Integration</h2>
+<p>
+  Changing ks changes the drapeyness of the cloth. The larger the ks, the more the cloth resists
+  stretching and bending. This is visible through the significantly reduced sag with higher ks. Low ks makes the cloth more
+  elastic. The constraining of position updates, however, prevent the cloth from overstretching and thus, the cloth
+  does not sag further than a certain amount. One thing to note is that very high ks values will kick the mass
+  spring systems into positive feedback and cause the cloth to spaz out.
+</p>
+<table style="width:100%">
+  <tr>
+    <td align="middle">
+      <img src="images/p2highks.png" width="100%" />
+      <figcaption align="middle">ks of 20000</figcaption>
+    </td>
+    <td align="middle">
+      <img src="images/p2.png" width="100%" />
+      <figcaption align="middle">ks of 5000</figcaption>
+    </td>
+    <td align="middle">
+      <img src="images/p2lowks.png" width="100%" />
+      <figcaption align="middle">ks of 10</figcaption>
+    </td>
+  </tr>
+</table>
+<p>
+  Density affects how heavy each point mass is. It has an exaclty opposite to ks. The less dense the cloth, the
+  more spring effects take hold. Thus, at low density, there is almost no sag. At high density, the cloth is 
+  at maximum sag. Once again, at very low densities, spring forces become erratic as even the smallest errors
+  cause large ripple effects since the cloth has almost no mass.
+</p>
+<table style="width:100%">
+  <tr>
+    <td align="middle">
+      <img src="images/p2highdensity.png" width="100%" />
+      <figcaption align="middle">density of 100</figcaption>
+    </td>
+    <td align="middle">
+      <img src="images/p2.png" width="100%" />
+      <figcaption align="middle">density of 15</figcaption>
+    </td>
+    <td align="middle">
+      <img src="images/p2lowdensity.png" width="100%" />
+      <figcaption align="middle">density of 1</figcaption>
+    </td>
+  </tr>
+</table>
+<p>
+  Damping slows all motion. Thus, it is a crude simulation of air resistance. Higher damping acts like denser atmospheres.
+  Another observation is that at 0 damping, thre is no decay in motion and all the oscillations from releasing the cloth
+  are visible.
+</p>
+<table style="width:100%">
+  <tr>
+    <td align="middle">
+      <img src="images/p2nodamping.png" width="60%" />
+      <figcaption align="middle">ripples from no damping</figcaption>
+    </td>
+  </tr>
+</table>
+<table style="width:100%">
+  <tr>
+    <td align="middle">
+      <img src="images/p2.png" width="60%" />
+      <figcaption align="middle">final render</figcaption>
+    </td>
+  </tr>
+</table>
 
+<h2 align="middle">Part III: Handling Collisions with Other Objects</h2>
+<table style="width:100%">
+  <tr>
+    <td align="middle">
+      <img src="images/p3ks500.png" width="100%" />
+      <figcaption align="middle">sphere with ks 500</figcaption>
+    </td>
+    <td align="middle">
+      <img src="images/p3ks5000.png" width="100%" />
+      <figcaption align="middle">sphere with ks 5000</figcaption>
+    </td>
+    <td align="middle">
+      <img src="images/p3ks50000.png" width="100%" />
+      <figcaption align="middle">sphere with ks 50000</figcaption>
+    </td>
+  </tr>
+</table>
+<p>
+  This is a perfect illustration of the effects of ks on stiffness of the cloth. The lower the ks, the more drapey the
+  cloth. The higher it is, the more stiff it is. This is because with a high ks, the springs better retain the original
+  shape of the cloth. Consequently, it refuses to bend as much.
+</p>
+<table style="width:100%">
+  <tr>
+    <td align="middle">
+      <img src="images/p3plane.png" width="80%" />
+      <figcaption align="middle">In other news, peacefully at rest indeed.</figcaption>
+    </td>
+  </tr>
+</table>
+
+<h2 align="middle">Part IV: Handling Self-Collisions</h2>
+<table style="width:100%">
+  <tr>
+    <td align="middle">
+      <img src="images/p41.png" width="100%" />
+      <figcaption align="middle">The cloth falls</figcaption>
+    </td>
+    <td align="middle">
+      <img src="images/p42.png" width="100%" />
+      <figcaption align="middle">it unravels</figcaption>
+    </td>
+    <td align="middle">
+      <img src="images/p43.png" width="100%" />
+      <figcaption align="middle">slowly but surely</figcaption>
+    </td>
+    <td align="middle">
+      <img src="images/p44.png" width="100%" />
+      <figcaption align="middle">almost there</figcaption>
+    </td>
+    <td align="middle">
+      <img src="images/p45.png" width="100%" />
+      <figcaption align="middle">finally at rest!</figcaption>
+    </td>
+  </tr>
+</table>
+<p>
+  As previously stated, changing ks affects the stiffness of the cloth. In the self collision case, the effects can be seen
+  in the way the cloth folds. High ks has fewer and smoother folds. Low ks has many and rough folds. This is explained by
+  the restoring force of the springs. lower force means less resistance to folds.
+</p>
+<table style="width:100%">
+  <tr>
+    <td align="middle">
+      <img src="images/p4ks500.png" width="100%" />
+      <figcaption align="middle">ks 500</figcaption>
+    </td>
+    <td align="middle">
+      <img src="images/p4ks500g.png" width="100%" />
+      <figcaption align="middle">ks 500</figcaption>
+    </td>
+  </tr>
+  <tr>
+    <td align="middle">
+      <img src="images/p4ks50000.png" width="100%" />
+      <figcaption align="middle">ks 50000</figcaption>
+    </td>
+    <td align="middle">
+      <img src="images/p4ks50000g.png" width="100%" />
+      <figcaption align="middle">ks 50000</figcaption>
+    </td>
+  </tr>
+</table>
+<p>
+  The effects of modifying density are very similar (just the opposite). High density has a tendency for many folds that never
+  iron out. Low density bends less easily and uravels easily. High density also has a tendency to cause self clipping
+  when fps and samples is too low as it takes significantly more force to stop a denser point mass.
+</p>
+<table style="width:100%">
+  <tr>
+    <td align="middle">
+      <img src="images/p4d1.png" width="100%" />
+      <figcaption align="middle">d 1</figcaption>
+    </td>
+    <td align="middle">
+      <img src="images/p4d1g.png" width="100%" />
+      <figcaption align="middle">d 1</figcaption>
+    </td>
+  </tr>
+  <tr>
+    <td align="middle">
+      <img src="images/p4d100.png" width="100%" />
+      <figcaption align="middle">d 100</figcaption>
+    </td>
+    <td align="middle">
+      <img src="images/p4d100g.png" width="100%" />
+      <figcaption align="middle">d 100</figcaption>
+    </td>
+  </tr>
+</table>
+
+<h2 align="middle">Part V: Additional cloth simulation features!</h2>
+<p>
+  This isn't much a cloth simulation feature but it is nice none the less. The shaders for rendering the cloth is onesided
+  when calculating diffuse and phong. I modified it so that specular and diffuse work on both sides of the cloth. It makes
+  for a significantly more realistic looking render.
+</p>
+<table style="width:100%">
+  <tr>
+    <td align="middle">
+      <img src="images/p5nos.png" width="100%" />
+      <figcaption align="middle">Original Shaders</figcaption>
+    </td>
+    <td align="middle">
+      <img src="images/p5nos2.png" width="100%" />
+      <figcaption align="middle">Original Shaders</figcaption>
+    </td>
+  </tr>
+  <tr>
+    <td align="middle">
+      <img src="images/p5yes.png" width="100%" />
+      <figcaption align="middle">Modified Shaders</figcaption>
+    </td>
+    <td align="middle">
+      <img src="images/p5yes2.png" width="100%" />
+      <figcaption align="middle">Modified Shaders</figcaption>
+    </td>
+  </tr>
+</table>
 </body>
 </html>
+
+
+
+

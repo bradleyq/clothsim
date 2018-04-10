@@ -12,7 +12,12 @@ using namespace CGL;
 
 void Plane::collide(PointMass &pm) {
   // TODO (Part 3.2): Handle collisions with planes.
-
+  double scalarproj = dot(pm.position - this->point, this->normal);
+  if ( scalarproj < 0) {
+    Vector3D correction = pm.position + this->normal * (-scalarproj + SURFACE_OFFSET);
+    correction -= pm.last_position;
+    pm.position = pm.last_position + (1 - this->friction) * correction;
+  }
 }
 
 void Plane::render(GLShader &shader) {

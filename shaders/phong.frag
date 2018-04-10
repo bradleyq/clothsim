@@ -26,11 +26,13 @@ vec4 shadePhong() {
   // ambient.a = 0.5;
 
   float diffuseDot = dot(n, lightDir);
+  diffuseDot *= dot(n, eye) < 0.0 ? -1.0 : 1.0;
   vec4 diffuse = color * clamp(diffuseDot, 0.0, 1.0);
 
   vec3 halfAngle = normalize(outDir + lightDir);
   vec4 specularColor = min(color + 0.2, 1.0);
   float specularDot = dot(n, halfAngle);
+  specularDot *= dot(n, eye) < 0.0 ? -1.0 : 1.0;
   vec4 specular = 0.5 * specularColor * pow(clamp(specularDot, 0.0, 1.0), p);
 
   return diffuse + ambient + specular;
