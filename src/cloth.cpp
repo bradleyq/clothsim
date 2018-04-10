@@ -44,7 +44,6 @@ void Cloth::buildGrid() {
           }
         }
         this->point_masses.push_back(PointMass(Vector3D(w*dw, 1.0f, h*dh), pin));
-        //cout << Vector3D(w*dw, 1.0f, h*dh) << "\n";
       }
     }
   } else {
@@ -109,7 +108,6 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
       PointMass* m2 = s.pm_b;
       Vector3D dir = m2->position - m1->position;
       double F = factor * cp->ks * (abs(dir.norm()) - s.rest_length);
-      //cout << F << "\n";
       dir.normalize();
       m1->forces += F * dir;
       m2->forces += -F * dir;
@@ -143,7 +141,6 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
   // TODO (Part 2.3): Constrain the changes to be such that the spring does not change
   // in length more than 10% per timestep [Provot 1995].
   double constrain = 0.1;
-  cout << "New iter:\n";
   for (Spring& s : this-> springs) {
     if (s.spring_type == STRUCTURAL && cp->enable_structural_constraints ||
         s.spring_type == SHEARING && cp->enable_shearing_constraints ||
@@ -151,17 +148,13 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
       PointMass* m1 = s.pm_a;
       PointMass* m2 = s.pm_b;
       Vector3D nd = m2->position - m1->position;
-      //double ratio = abs(nd.norm()) / s.rest_length;
       if (abs(nd.norm()) > s.rest_length * (1.0 + constrain)) {
         nd.normalize();
         Vector3D shift = (1.0 + constrain) * s.rest_length * nd;
         if (!m1->pinned && !m2->pinned) {
-          //double corr = (ratio - 1.0 - constrain) / 2.0;
-          //cout << nd << m1->position << m2->position << corr;
           Vector3D mp = (m1->position + m2->position) * 0.5;
           m1->position = -0.5 * shift + mp;
           m2->position = 0.5 * shift + mp;
-          //cout << m1->position << m2->position << "\n";
         } else if (!m1->pinned && m2->pinned) {
           m1->position = -shift + m2->position;
         } else if (m1->pinned && !m2->pinned) {
@@ -206,7 +199,6 @@ void Cloth::build_spatial_map() {
 void Cloth::self_collide(PointMass &pm, double simulation_steps) {
   // TODO (Part 4.3): Handle self-collision for a given point mass.
   vector<PointMass *>* v = this->map[hash_position(pm.position)];
-  //cout << (*v).size() << "\n";
   Vector3D correction = Vector3D();
   int num = 0;
   for (PointMass* pp : *v) {
